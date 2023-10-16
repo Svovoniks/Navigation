@@ -36,7 +36,7 @@ class Utils {
     }
 
     fun centerMap(location: Location, map: MapView){
-        map.controller.setCenter(GeoPoint(location))
+        map.controller.animateTo(GeoPoint(location))
     }
 
     fun setPositionMarker(marker: Marker, location: Location){

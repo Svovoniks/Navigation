@@ -19,11 +19,13 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.svovo.navigation.databinding.ActivityMainBinding
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.views.MapView
 import org.osmdroid.config.Configuration
 import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.overlay.Marker
 
 class MainActivity : AppCompatActivity(), LocationListener {
@@ -32,8 +34,10 @@ class MainActivity : AppCompatActivity(), LocationListener {
     private lateinit var binding: ActivityMainBinding
     private lateinit var map : MapView
     private lateinit var locationManager: LocationManager
+    private lateinit var currentLocation: Location
     private val utils = Utils()
     private lateinit var locationMarker: Marker
+    private lateinit var centerMapFab: FloatingActionButton
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,9 +52,19 @@ class MainActivity : AppCompatActivity(), LocationListener {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
+        centerMapFab = findViewById(R.id.center_map_fab)
+        findViewById<FloatingActionButton>(R.id.zoom_in_fab).setOnClickListener {
+            if (map.canZoomIn()) map.controller.zoomTo(map.zoomLevelDouble + 1)
+        }
+
+        findViewById<FloatingActionButton>(R.id.zoom_out_fab).setOnClickListener {
+            if (map.canZoomOut()) map.controller.zoomTo(map.zoomLevelDouble - 1)
+        }
+
         Configuration.getInstance().load(this, getSharedPreferences("mapInit", Context.MODE_PRIVATE))
 
         map = findViewById<MapView>(R.id.map)
+        map.zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
         map.setTileSource(TileSourceFactory.MAPNIK)
         locationMarker = Marker(map)
         map.overlays.add(locationMarker)
@@ -90,24 +104,27 @@ class MainActivity : AppCompatActivity(), LocationListener {
             fusedLocationClient.lastLocation
                 .addOnSuccessListener { location : Location? ->
                     if (location != null) {
+                        currentLocation = location
                         utils.centerMap(location, map)
                         utils.setPositionMarker(locationMarker, location)
                     }
                 }
-
+            centerMapFab.setOnClickListener { if (::currentLocation.isInitialized) utils.centerMap(currentLocation, map) }
             locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5f, this)
         }
 
     }
     override fun onLocationChanged(location: Location) {
-        utils.centerMap(location, map)
+        currentLocation = location
+        utils.setPositionMarker(locationMarker, location)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == utils.LOCATION_RQ) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED ||
+                grantResults.size > 1 && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show()
                 setupLocation()
             }
