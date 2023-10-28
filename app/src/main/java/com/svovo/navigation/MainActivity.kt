@@ -16,6 +16,7 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.util.Log
+import android.view.MotionEvent
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationServices
@@ -27,6 +28,11 @@ import org.osmdroid.config.Configuration
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
+import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+import android.view.ScaleGestureDetector
+
+
 
 class MainActivity : AppCompatActivity(), LocationListener {
 
@@ -38,6 +44,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
     private val utils = Utils()
     private lateinit var locationMarker: Marker
     private lateinit var centerMapFab: FloatingActionButton
+    private lateinit var scaleGestureDetector: ScaleGestureDetector
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,6 +80,29 @@ class MainActivity : AppCompatActivity(), LocationListener {
         mapController.setZoom(18.4)
 
         setupLocation()
+
+        scaleGestureDetector = ScaleGestureDetector(this, object : ScaleGestureDetector.OnScaleGestureListener {
+            override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
+                // Можно оставить пустым или выполнить необходимые действия перед началом масштабирования
+                return true
+            }
+
+            override fun onScale(detector: ScaleGestureDetector): Boolean {
+                val currentSpan = detector.currentSpan
+                val previousSpan = detector.previousSpan
+                if (currentSpan > previousSpan) {
+                    // Масштабирование карты в случае расширения двумя пальцами
+                    if (map.canZoomOut()) map.controller.zoomTo(map.zoomLevelDouble + 1)
+                } else {
+                    // Масштабирование карты в случае сжатия двумя пальцами
+                    if (map.canZoomIn()) map.controller.zoomTo(map.zoomLevelDouble - 1)
+                }
+                return true
+            }
+
+            override fun onScaleEnd(detector: ScaleGestureDetector) {
+            }
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -134,5 +164,12 @@ class MainActivity : AppCompatActivity(), LocationListener {
                 map.invalidate()
             }
         }
+    }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        event?.let {
+            scaleGestureDetector.onTouchEvent(it)
+        }
+        return super.onTouchEvent(event)
     }
 }
