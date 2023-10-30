@@ -1,32 +1,29 @@
 package com.svovo.navigation
 
+import android.content.Context
 import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
-import android.view.Menu
-import android.view.MenuItem
-import android.widget.Toast
-import android.Manifest
-import android.content.Context
-import android.location.Location
-import android.location.LocationListener
-import android.location.LocationManager
-import android.util.Log
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.svovo.navigation.databinding.ActivityMainBinding
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
-import org.osmdroid.views.MapView
 import org.osmdroid.config.Configuration
-import org.osmdroid.util.GeoPoint
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.views.CustomZoomButtonsController
+import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
+
 
 class MainActivity : AppCompatActivity(), LocationListener {
 
@@ -72,6 +69,11 @@ class MainActivity : AppCompatActivity(), LocationListener {
         val mapController = map.controller
         mapController.setZoom(18.4)
 
+
+        val mRotationGestureOverlay = RotationGestureOverlay(map)
+        mRotationGestureOverlay.isEnabled = true
+        map.setMultiTouchControls(true)
+        map.overlays.add(mRotationGestureOverlay)
         setupLocation()
     }
 
