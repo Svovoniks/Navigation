@@ -4,7 +4,8 @@ Navigation app is an app with a very creative name
   
 Now you can:  
   • view map  
-  • zoom using buttons  
+  • zoom using buttons and gestures 
+  • rotate map
   • find out your location  
   
 And more features are comming soon  
