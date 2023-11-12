@@ -1,38 +1,29 @@
 package com.svovo.navigation
 
+import android.content.Context
 import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
-import android.view.Menu
-import android.view.MenuItem
-import android.widget.Toast
-import android.Manifest
-import android.content.Context
-import android.location.Location
-import android.location.LocationListener
-import android.location.LocationManager
-import android.util.Log
-import android.view.MotionEvent
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.svovo.navigation.databinding.ActivityMainBinding
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
-import org.osmdroid.views.MapView
 import org.osmdroid.config.Configuration
-import org.osmdroid.util.GeoPoint
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.views.CustomZoomButtonsController
+import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
-import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
-import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
-import android.view.ScaleGestureDetector
-
-
+import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
 
 class MainActivity : AppCompatActivity(), LocationListener {
 
@@ -44,7 +35,6 @@ class MainActivity : AppCompatActivity(), LocationListener {
     private val utils = Utils()
     private lateinit var locationMarker: Marker
     private lateinit var centerMapFab: FloatingActionButton
-    private lateinit var scaleGestureDetector: ScaleGestureDetector
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,48 +51,39 @@ class MainActivity : AppCompatActivity(), LocationListener {
 
         centerMapFab = findViewById(R.id.center_map_fab)
         findViewById<FloatingActionButton>(R.id.zoom_in_fab).setOnClickListener {
-            if (map.canZoomIn()) map.controller.zoomTo(map.zoomLevelDouble + 1)
+            if (map.canZoomIn()) map.controller.zoomTo(map.zoomLevelDouble + 2)
         }
 
         findViewById<FloatingActionButton>(R.id.zoom_out_fab).setOnClickListener {
-            if (map.canZoomOut()) map.controller.zoomTo(map.zoomLevelDouble - 1)
+            if (map.canZoomOut()) map.controller.zoomTo(map.zoomLevelDouble - 2)
         }
 
         Configuration.getInstance().load(this, getSharedPreferences("mapInit", Context.MODE_PRIVATE))
 
-        map = findViewById<MapView>(R.id.map)
+        map = findViewById(R.id.map)
         map.zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
         map.setTileSource(TileSourceFactory.MAPNIK)
         locationMarker = Marker(map)
         map.overlays.add(locationMarker)
 
+        val pathManager = PathManager(map, onBackPressedDispatcher)
+
+        val eventsReceiver = MapEventsReceiverImpl(map,
+            pathManager,
+            findViewById(R.id.routing_layout),
+            findViewById(R.id.from_fab),
+            findViewById(R.id.to_fab),
+            onBackPressedDispatcher
+        )
+        map.overlays.add(MapEventsOverlay(eventsReceiver))
+
+        map.setMultiTouchControls(true)
+        map.overlays.add(RotationGestureOverlay(map))
+
         val mapController = map.controller
         mapController.setZoom(18.4)
 
         setupLocation()
-
-        scaleGestureDetector = ScaleGestureDetector(this, object : ScaleGestureDetector.OnScaleGestureListener {
-            override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
-                // Можно оставить пустым или выполнить необходимые действия перед началом масштабирования
-                return true
-            }
-
-            override fun onScale(detector: ScaleGestureDetector): Boolean {
-                val currentSpan = detector.currentSpan
-                val previousSpan = detector.previousSpan
-                if (currentSpan > previousSpan) {
-                    // Масштабирование карты в случае расширения двумя пальцами
-                    if (map.canZoomOut()) map.controller.zoomTo(map.zoomLevelDouble + 1)
-                } else {
-                    // Масштабирование карты в случае сжатия двумя пальцами
-                    if (map.canZoomIn()) map.controller.zoomTo(map.zoomLevelDouble - 1)
-                }
-                return true
-            }
-
-            override fun onScaleEnd(detector: ScaleGestureDetector) {
-            }
-        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -164,12 +145,5 @@ class MainActivity : AppCompatActivity(), LocationListener {
                 map.invalidate()
             }
         }
-    }
-
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
-        event?.let {
-            scaleGestureDetector.onTouchEvent(it)
-        }
-        return super.onTouchEvent(event)
     }
 }
