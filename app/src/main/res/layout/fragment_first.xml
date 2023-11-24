@@ -10,8 +10,9 @@
             android:id="@+id/map"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="#151B26"
             tools:layout_editor_absoluteX="0dp"
-            tools:layout_editor_absoluteY="0dp"></org.osmdroid.views.MapView>
+            tools:layout_editor_absoluteY="-93dp" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/zoom_out_fab"
@@ -20,9 +21,13 @@
             android:layout_margin="15dp"
             android:contentDescription="@string/fab_description"
             android:src="@drawable/baseline_remove_24"
+            app:elevation="0dp"
+            app:tint="#E6DFD9"
+            app:backgroundTint="#CC1F2736"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:maxImageSize="40dp"/>
 
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -31,8 +36,12 @@
             android:layout_height="wrap_content"
             android:layout_margin="15dp"
             android:src="@drawable/baseline_add_24"
+            app:elevation="0dp"
+            app:tint="#E6DFD9"
+            app:backgroundTint="#CC1F2736"
             app:layout_constraintBottom_toTopOf="@id/zoom_out_fab"
             app:layout_constraintEnd_toEndOf="parent"
+            app:maxImageSize="40dp"
             android:contentDescription="@string/fab_description" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -41,18 +50,23 @@
             android:layout_height="wrap_content"
             android:layout_margin="15dp"
             android:contentDescription="@string/fab_description"
-            android:src="@drawable/baseline_my_location_24"
+            android:src="@drawable/arrow_icon"
+            app:backgroundTint="#CC1F2736"
+            app:elevation="0dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/zoom_out_fab" />
+            app:layout_constraintTop_toBottomOf="@+id/zoom_out_fab"
+            app:maxImageSize="35dp"
+            app:tint="#E6DFD9" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/routing_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="81dp"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:visibility="invisible">
+            app:layout_constraintStart_toStartOf="parent">
 
                 <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
                     android:id="@+id/to_fab"

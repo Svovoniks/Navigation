@@ -2,6 +2,9 @@ package com.svovo.navigation
 
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
@@ -24,6 +27,7 @@ import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
+
 
 class MainActivity : AppCompatActivity(), LocationListener {
 
@@ -64,6 +68,22 @@ class MainActivity : AppCompatActivity(), LocationListener {
         map.zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
         map.setTileSource(TileSourceFactory.MAPNIK)
         locationMarker = Marker(map)
+
+        // добавление кастомной иконки для маркера
+        val d = getDrawable(R.drawable.marker_icon)
+        val bitmap = (d as BitmapDrawable).bitmap
+        val dr: Drawable = BitmapDrawable(
+            resources,
+            Bitmap.createScaledBitmap(
+                bitmap,
+                (30.0f * resources.displayMetrics.density).toInt(),
+                (30.0f * resources.displayMetrics.density).toInt(),
+                true
+            )
+        )
+        locationMarker.icon = dr
+        locationMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+
         map.overlays.add(locationMarker)
 
         val pathManager = PathManager(map, onBackPressedDispatcher)
