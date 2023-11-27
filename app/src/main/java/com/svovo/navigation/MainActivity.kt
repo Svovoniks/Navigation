@@ -42,21 +42,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        loadFragment(MapFragment())
 
-        binding.bottomNav.selectedItemId = R.id.mapFragment
-
-        binding.bottomNav.itemIconTintList = null
-
-        binding.bottomNav.setOnItemSelectedListener {
-            when(it.itemId){
-                R.id.mapFragment -> loadFragment(MapFragment())
-                R.id.discover -> loadFragment(DiscoverFragment())
-                R.id.profile -> loadFragment(ProfileFragment())
-            }
-            true
-        }
-        onBackPressedDispatcher.addCallback(this.callback)
 
         //setSupportActionBar(binding.toolbar)
 
@@ -114,12 +100,34 @@ class MainActivity : AppCompatActivity(), LocationListener {
         mapController.setZoom(18.4)
 
         setupLocation()
+
+        binding.bottomNav.selectedItemId = R.id.mapFragment
+
+        binding.bottomNav.itemIconTintList = null
+
+        binding.bottomNav.setOnItemSelectedListener {
+            when(it.itemId){
+                R.id.mapFragment -> removeFragment()
+                R.id.discover -> loadFragment(DiscoverFragment())
+                R.id.profile -> loadFragment(ProfileFragment())
+            }
+            true
+        }
+        onBackPressedDispatcher.addCallback(this.callback)
     }
 
     private fun loadFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.nav_host_fragment_content_main, fragment, fragment.javaClass.simpleName)
             .commit()
+    }
+
+    private fun removeFragment() {
+        val fragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main)
+        fragment?.let {
+            val transaction = supportFragmentManager.beginTransaction()
+            transaction.remove(it).commitAllowingStateLoss()
+        }
     }
 
     private val callback = object : OnBackPressedCallback(true) {
