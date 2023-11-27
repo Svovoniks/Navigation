@@ -8,17 +8,21 @@
     android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
-    <com.google.android.material.appbar.AppBarLayout
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_nav"
+        app:layout_anchorGravity="bottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fitsSystemWindows="true">
-
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize" />
-
-    </com.google.android.material.appbar.AppBarLayout>
+        android:layout_marginStart="0dp"
+        android:layout_marginEnd="0dp"
+        android:background="@drawable/top_rounded_corners"
+        android:fitsSystemWindows="true"
+        android:layout_gravity="bottom"
+        app:itemIconSize="57dp"
+        app:itemRippleColor="@color/white"
+        app:itemActiveIndicatorStyle="@color/white"
+        app:labelVisibilityMode="unlabeled"
+        app:menu="@menu/menu_main"/>
 
     <include layout="@layout/content_main" />
 

@@ -9,14 +9,10 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.fragment.app.Fragment
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.svovo.navigation.databinding.ActivityMainBinding
@@ -31,7 +27,6 @@ import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
 
 class MainActivity : AppCompatActivity(), LocationListener {
 
-    private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     private lateinit var map : MapView
     private lateinit var locationManager: LocationManager
@@ -47,11 +42,27 @@ class MainActivity : AppCompatActivity(), LocationListener {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setSupportActionBar(binding.toolbar)
+        loadFragment(MapFragment())
 
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-        appBarConfiguration = AppBarConfiguration(navController.graph)
-        setupActionBarWithNavController(navController, appBarConfiguration)
+        binding.bottomNav.selectedItemId = R.id.mapFragment
+
+        binding.bottomNav.itemIconTintList = null
+
+        binding.bottomNav.setOnItemSelectedListener {
+            when(it.itemId){
+                R.id.mapFragment -> loadFragment(MapFragment())
+                R.id.discover -> loadFragment(DiscoverFragment())
+                R.id.profile -> loadFragment(ProfileFragment())
+            }
+            true
+        }
+        onBackPressedDispatcher.addCallback(this.callback)
+
+        //setSupportActionBar(binding.toolbar)
+
+        //val navController = findNavController(R.id.nav_host_fragment_content_main)
+        //appBarConfiguration = AppBarConfiguration(navController.graph)
+        //setupActionBarWithNavController(navController, appBarConfiguration)
 
         centerMapFab = findViewById(R.id.center_map_fab)
         findViewById<FloatingActionButton>(R.id.zoom_in_fab).setOnClickListener {
@@ -69,7 +80,6 @@ class MainActivity : AppCompatActivity(), LocationListener {
         map.setTileSource(TileSourceFactory.MAPNIK)
         locationMarker = Marker(map)
 
-        // добавление кастомной иконки для маркера
         val d = getDrawable(R.drawable.marker_icon)
         val bitmap = (d as BitmapDrawable).bitmap
         val dr: Drawable = BitmapDrawable(
@@ -106,27 +116,43 @@ class MainActivity : AppCompatActivity(), LocationListener {
         setupLocation()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.menu_main, menu)
-        return true
+    private fun loadFragment(fragment: Fragment) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.nav_host_fragment_content_main, fragment, fragment.javaClass.simpleName)
+            .commit()
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        return when (item.itemId) {
-            R.id.action_settings -> true
-            else -> super.onOptionsItemSelected(item)
+    private val callback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            if (binding.bottomNav.selectedItemId == R.id.mapFragment) {
+                finishAffinity()
+            } else {
+                binding.bottomNav.selectedItemId = R.id.mapFragment
+            }
         }
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-        return navController.navigateUp(appBarConfiguration)
-                || super.onSupportNavigateUp()
-    }
+//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        menuInflater.inflate(R.menu.menu_main, menu)
+//        return true
+//    }
+
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//        return when (item.itemId) {
+//            R.id.mapFragment -> true
+//            else -> super.onOptionsItemSelected(item)
+//        }
+//    }
+
+//    override fun onSupportNavigateUp(): Boolean {
+//        val navController = findNavController(R.id.nav_host_fragment_content_main)
+//        return navController.navigateUp(appBarConfiguration)
+//                || super.onSupportNavigateUp()
+//    }
 
 
     private fun setupLocation() {
