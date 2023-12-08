@@ -10,9 +10,8 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.view.KeyEvent
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
@@ -49,6 +48,10 @@ class MainActivity : AppCompatActivity(), LocationListener {
         setContentView(binding.root)
 
 
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        )
 
         //setSupportActionBar(binding.toolbar)
 

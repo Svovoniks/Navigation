@@ -15,6 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="0dp"
         android:layout_marginEnd="0dp"
+        android:padding="10dp"
         android:background="@drawable/top_rounded_corners"
         android:fitsSystemWindows="true"
         android:layout_gravity="bottom"
