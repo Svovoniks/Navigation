@@ -10,13 +10,23 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcher
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
+import com.android.volley.RequestQueue
+import com.android.volley.Response
+import com.android.volley.toolbox.BasicNetwork
+import com.android.volley.toolbox.DiskBasedCache
+import com.android.volley.toolbox.HurlStack
+import com.android.volley.toolbox.StringRequest
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+import com.google.gson.JsonObject
+import com.google.gson.JsonParser
 import org.json.JSONObject
 import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polyline
+import java.io.File
+import java.net.URLEncoder
 
 class Utils {
     val LOCATION_RQ = 100
@@ -230,3 +240,90 @@ class MapEventsReceiverImpl(map: MapView,
         removeSelectMarker()
     }
 }
+
+class Search (context: Activity){
+    private val markerList: ArrayList<Marker> = ArrayList()
+    private val searchObjectList: ArrayList<SearchObject> = ArrayList()
+    private val context: Activity
+
+    init {
+        this.context = context
+    }
+
+    fun executeForAllFound(action: (ArrayList<SearchObject>) -> Unit){
+        action(searchObjectList)
+    }
+
+
+    fun drawAll(map: MapView){
+        for (i in searchObjectList){
+            val mk = Marker(map)
+            mk.position = i.point
+            map.overlays.add(mk)
+            markerList.add(mk)
+        }
+        map.invalidate()
+    }
+
+    fun removeAllMarkers(map: MapView){
+        for (i in markerList){
+            map.overlays.remove(i)
+        }
+        markerList.clear()
+    }
+
+    fun clearSearchList(){
+        searchObjectList.clear()
+    }
+
+    fun find(name: String, map: MapView, action: (ArrayList<SearchObject>) -> Unit) {
+        val cache = DiskBasedCache(File("cache"), 1024 * 1024)
+        val network = BasicNetwork(HurlStack())
+        val requestQueue = RequestQueue(cache, network).apply {
+            start()
+        }
+
+        var url = "https://nominatim.openstreetmap.org/search.php?format=json&accept-language=en&addressdetails=1&limit=50&q="
+
+        url += URLEncoder.encode(name, "UTF-8")
+
+        val point1 = map.projection.northEast
+        val point2 = map.projection.southWest
+
+        url += "&viewbox=" + point1.longitude + "," + point1.latitude+ "," + point2.longitude + "," + point2.latitude
+        class CustomRequest : StringRequest(
+            Method.GET, url,
+            Response.Listener { response ->
+
+                val parsed = JsonParser.parseString(response)
+                if (!parsed.isJsonArray){
+                    Toast.makeText(context, "doesn't exist", Toast.LENGTH_LONG).show()
+                    return@Listener
+                }
+
+                for (i in parsed.asJsonArray){
+                    val k = i.asJsonObject
+                    searchObjectList.add(SearchObject(GeoPoint(k["lat"].asDouble, k["lon"].asDouble), k))
+                }
+                action(searchObjectList)
+            },
+            Response.ErrorListener { error -> Toast.makeText(context, error.toString(), Toast.LENGTH_LONG).show()}) {
+            override fun getHeaders(): MutableMap<String, String> {
+                val map = HashMap<String, String>()
+                map["User-Agent"] = "Mozilla/5.0"
+                return map
+            }
+        }
+        requestQueue.add(CustomRequest())
+    }
+}
+
+class SearchObject(point: GeoPoint, fullData: JsonObject){
+    val point: GeoPoint
+    val fullData: JsonObject
+    init {
+        this.point = point
+        this.fullData = fullData
+    }
+}
+

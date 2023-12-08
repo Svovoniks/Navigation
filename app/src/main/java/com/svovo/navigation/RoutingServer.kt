@@ -14,7 +14,7 @@ import java.io.File
 
 class RoutingServer {
     private val rootURL: String = "https://gradually-quality-mole.ngrok-free.app"
-    private val routingURL: String = "get-route/{startLat}/{startLon}/{destLat}/{destLon}?start_lat=%s&start_lon=%s&dest_lat=%s&dest_lon=%s"
+    private val routingURL: String = "get-route/?start_lat=%s&start_lon=%s&dest_lat=%s&dest_lon=%s"
     private val requestQueue: RequestQueue
 
     init {

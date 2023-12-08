@@ -9,15 +9,21 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
+import android.view.KeyEvent
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.textfield.TextInputEditText
 import com.svovo.navigation.databinding.ActivityMainBinding
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.MapEventsOverlay
@@ -55,9 +61,21 @@ class MainActivity : AppCompatActivity(), LocationListener {
             if (map.canZoomIn()) map.controller.zoomTo(map.zoomLevelDouble + 2)
         }
 
+        val search = Search(this)
+
         findViewById<FloatingActionButton>(R.id.zoom_out_fab).setOnClickListener {
             if (map.canZoomOut()) map.controller.zoomTo(map.zoomLevelDouble - 2)
         }
+
+        findViewById<TextInputEditText>(R.id.search_bar_edit_text).setOnKeyListener(View.OnKeyListener { v, i, key ->
+            if (key.action == KeyEvent.ACTION_DOWN && key.keyCode == KeyEvent.KEYCODE_ENTER) {
+                search.clearSearchList()
+                search.removeAllMarkers(map)
+                search.find((v as TextInputEditText).text.toString(), map) { _ -> search.drawAll(map) }
+                return@OnKeyListener true
+            }
+            return@OnKeyListener false
+        })
 
         Configuration.getInstance().load(this, getSharedPreferences("mapInit", Context.MODE_PRIVATE))
 
@@ -169,6 +187,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
             fusedLocationClient.lastLocation
                 .addOnSuccessListener { location : Location? ->
                     if (location != null) {
+                        map.controller.setCenter(GeoPoint(location))
                         currentLocation = location
                         utils.centerMap(location, map)
                         utils.setPositionMarker(locationMarker, location)
