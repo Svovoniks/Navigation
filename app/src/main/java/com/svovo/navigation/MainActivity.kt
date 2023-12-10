@@ -12,6 +12,8 @@ import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
+import android.widget.Button
+import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
@@ -39,14 +41,13 @@ class MainActivity : AppCompatActivity(), LocationListener {
     private val utils = Utils()
     private lateinit var locationMarker: Marker
     private lateinit var centerMapFab: FloatingActionButton
-
+    private var loggedIn = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
 
         window.setFlags(
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
@@ -126,11 +127,35 @@ class MainActivity : AppCompatActivity(), LocationListener {
 
         binding.bottomNav.itemIconTintList = null
 
+        var mapFlag = true
+
         binding.bottomNav.setOnItemSelectedListener {
             when(it.itemId){
-                R.id.mapFragment -> removeFragment()
-                R.id.discover -> loadFragment(DiscoverFragment())
-                R.id.profile -> loadFragment(ProfileFragment())
+                R.id.mapFragment -> {
+                    if(!mapFlag) {
+                        removeFragment()
+                        mapFlag = true
+                    }
+                }
+                R.id.discover -> {
+                    loadFragment(DiscoverFragment())
+                    mapFlag = false
+                }
+                R.id.profile -> {
+
+//                    findViewById<Button>(R.id.login_button).setOnClickListener {
+//                        if (findViewById<EditText>(R.id.username).text.toString() == "admin"
+//                            && findViewById<EditText>(R.id.password).text.toString() == "admin") {
+//                            loggedIn = true
+//                        }
+//                        else Toast.makeText(this, "Login Failed", Toast.LENGTH_SHORT).show()
+//                    }
+
+                    if (loggedIn) {
+                        loadFragment(ProfileFragment())
+                    } else loadFragment(LoginFragment())
+                    mapFlag = false
+                }
             }
             true
         }
@@ -160,6 +185,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
             }
         }
     }
+
 
 //    override fun onCreateOptionsMenu(menu: Menu): Boolean {
 //        // Inflate the menu; this adds items to the action bar if it is present.
