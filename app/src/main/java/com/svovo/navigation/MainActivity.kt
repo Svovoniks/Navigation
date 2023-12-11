@@ -12,8 +12,8 @@ import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
-import android.widget.Button
-import android.widget.EditText
+import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
@@ -71,11 +71,16 @@ class MainActivity : AppCompatActivity(), LocationListener {
             if (map.canZoomOut()) map.controller.zoomTo(map.zoomLevelDouble - 2)
         }
 
-        findViewById<TextInputEditText>(R.id.search_bar_edit_text).setOnKeyListener(View.OnKeyListener { v, i, key ->
+        val searchIcon = findViewById<ImageView>(R.id.search_icon)
+        val searchProgress = findViewById<ProgressBar>(R.id.progress_bar)
+        val searchBar = findViewById<TextInputEditText>(R.id.search_bar_edit_text)
+        searchIcon.setOnClickListener {
+            searchMap(search, searchBar, searchProgress, searchIcon)
+        }
+
+        searchBar.setOnKeyListener(View.OnKeyListener { v, i, key ->
             if (key.action == KeyEvent.ACTION_DOWN && key.keyCode == KeyEvent.KEYCODE_ENTER) {
-                search.clearSearchList()
-                search.removeAllMarkers(map)
-                search.find((v as TextInputEditText).text.toString(), map) { _ -> search.drawAll(map) }
+                searchMap(search, searchBar, searchProgress, searchIcon)
                 return@OnKeyListener true
             }
             return@OnKeyListener false
@@ -160,6 +165,24 @@ class MainActivity : AppCompatActivity(), LocationListener {
             true
         }
         onBackPressedDispatcher.addCallback(this.callback)
+    }
+
+    private fun searchMap(search: Search, v: TextInputEditText, searchProgress: ProgressBar, searchIcon: ImageView){
+        searchProgress.visibility = View.VISIBLE
+        searchIcon.visibility = View.GONE
+        search.clearSearchList()
+        search.removeAllMarkers(map)
+        search.find(v.text.toString(), map, { _ ->
+            searchProgress.visibility = View.INVISIBLE
+            searchIcon.visibility = View.VISIBLE
+            search.drawAll(map)
+            search.centerOnTheClosest(map, locationMarker.position)
+        },
+            {
+            searchProgress.visibility = View.INVISIBLE
+            searchIcon.visibility = View.VISIBLE
+        }
+        )
     }
 
     private fun loadFragment(fragment: Fragment) {

@@ -10,11 +10,11 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="60dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="50dp"
             android:layout_marginHorizontal="20dp"
             app:layout_constraintTop_toTopOf="parent"
             app:cardCornerRadius="15dp"
-            app:cardBackgroundColor="#CC1F2736"
+            app:cardBackgroundColor="#1F2736"
             app:tint="#E6DFD9"
             app:elevation="0dp">
 
@@ -41,6 +41,7 @@
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <ImageView
+                            android:id="@+id/search_icon"
                             app:elevation="0dp"
                             android:layout_width="30dp"
                             android:layout_height="30dp"
@@ -50,6 +51,17 @@
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
+
+                        <ProgressBar
+                            android:id="@+id/progress_bar"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="10dp"
+                            android:visibility="invisible"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"/>
+
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.cardview.widget.CardView>
@@ -126,7 +138,7 @@
                     android:text="To here"
                     android:textColor="#E6DFD9"
                     app:elevation="0dp"
-                    app:backgroundTint="#CC1F2736"
+                    app:backgroundTint="#1F2736"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
@@ -143,7 +155,7 @@
                     android:text="From here"
                     android:textColor="#E6DFD9"
                     app:elevation="0dp"
-                    app:backgroundTint="#CC1F2736"
+                    app:backgroundTint="#1F2736"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/to_fab"
                     app:layout_constraintHorizontal_bias="0.5"

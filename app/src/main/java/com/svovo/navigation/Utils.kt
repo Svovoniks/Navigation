@@ -54,6 +54,10 @@ class Utils {
         map.controller.animateTo(GeoPoint(location))
     }
 
+    fun centerMap(location: GeoPoint, map: MapView){
+        map.controller.animateTo(location)
+    }
+
     fun setPositionMarker(marker: Marker, location: Location){
         marker.position = GeoPoint(location)
     }
@@ -265,6 +269,14 @@ class Search (context: Activity){
         map.invalidate()
     }
 
+    fun centerOnTheClosest(map: MapView, currentLocation: GeoPoint){
+        if (markerList.isEmpty()){
+            return
+        }
+        markerList.sortBy { it.position.distanceToAsDouble(currentLocation) }
+        Utils().centerMap(markerList.first().position, map)
+    }
+
     fun removeAllMarkers(map: MapView){
         for (i in markerList){
             map.overlays.remove(i)
@@ -276,7 +288,7 @@ class Search (context: Activity){
         searchObjectList.clear()
     }
 
-    fun find(name: String, map: MapView, action: (ArrayList<SearchObject>) -> Unit) {
+    fun find(name: String, map: MapView, action: (ArrayList<SearchObject>) -> Unit, errorAction: () -> Unit) {
         val cache = DiskBasedCache(File("cache"), 1024 * 1024)
         val network = BasicNetwork(HurlStack())
         val requestQueue = RequestQueue(cache, network).apply {
@@ -307,7 +319,10 @@ class Search (context: Activity){
                 }
                 action(searchObjectList)
             },
-            Response.ErrorListener { error -> Toast.makeText(context, error.toString(), Toast.LENGTH_LONG).show()}) {
+            Response.ErrorListener { error ->
+                errorAction()
+                Toast.makeText(context, error.toString(), Toast.LENGTH_LONG).show()
+            }) {
             override fun getHeaders(): MutableMap<String, String> {
                 val map = HashMap<String, String>()
                 map["User-Agent"] = "Mozilla/5.0"
