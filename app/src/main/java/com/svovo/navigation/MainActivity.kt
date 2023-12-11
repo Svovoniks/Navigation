@@ -41,7 +41,6 @@ class MainActivity : AppCompatActivity(), LocationListener {
     private val utils = Utils()
     private lateinit var locationMarker: Marker
     private lateinit var centerMapFab: FloatingActionButton
-    private var loggedIn = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -147,18 +146,10 @@ class MainActivity : AppCompatActivity(), LocationListener {
                     mapFlag = false
                 }
                 R.id.profile -> {
-
-//                    findViewById<Button>(R.id.login_button).setOnClickListener {
-//                        if (findViewById<EditText>(R.id.username).text.toString() == "admin"
-//                            && findViewById<EditText>(R.id.password).text.toString() == "admin") {
-//                            loggedIn = true
-//                        }
-//                        else Toast.makeText(this, "Login Failed", Toast.LENGTH_SHORT).show()
-//                    }
-
                     if (loggedIn) {
                         loadFragment(ProfileFragment())
-                    } else loadFragment(LoginFragment())
+                    } else if (loginPageLoaded) loadFragment(LoginFragment())
+                    else loadFragment(SignUpFragment())
                     mapFlag = false
                 }
             }
@@ -270,5 +261,11 @@ class MainActivity : AppCompatActivity(), LocationListener {
                 map.invalidate()
             }
         }
+    }
+
+    companion object {
+        var loggedIn: Boolean = false
+        var loginPageLoaded : Boolean = true
+        var signupPageLoaded : Boolean = false
     }
 }

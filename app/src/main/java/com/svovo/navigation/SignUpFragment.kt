@@ -16,10 +16,10 @@ private const val ARG_PARAM2 = "param2"
 
 /**
  * A simple [Fragment] subclass.
- * Use the [LoginFragment.newInstance] factory method to
+ * Use the [SignUpFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class LoginFragment : Fragment() {
+class SignUpFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
@@ -32,29 +32,30 @@ class LoginFragment : Fragment() {
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_login, container, false)
+        return inflater.inflate(R.layout.fragment_sign_up, container, false)
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        view.findViewById<Button>(R.id.login_button).setOnClickListener {
-            if (view.findViewById<EditText>(R.id.username).text.toString() == "admin"
-                && view.findViewById<EditText>(R.id.password).text.toString() == "admin") {
+        view.findViewById<Button>(R.id.signup_button).setOnClickListener {
+            if (view.findViewById<EditText>(R.id.password).text.toString()
+                == view.findViewById<EditText>(R.id.repeat_password).text.toString()
+                && view.findViewById<EditText>(R.id.password).text.toString().length > 5) {
                 MainActivity.loggedIn = true
                 loadFragment(ProfileFragment())
             }
-            else Toast.makeText(activity, "Login Failed", Toast.LENGTH_SHORT).show()
+            else Toast.makeText(activity, "Sign Up Failed", Toast.LENGTH_SHORT).show()
         }
-        view.findViewById<Button>(R.id.signup_button).setOnClickListener {
-            loadFragment(SignUpFragment())
-            MainActivity.loginPageLoaded = false
-            MainActivity.signupPageLoaded = true
+        view.findViewById<Button>(R.id.login_button).setOnClickListener {
+            loadFragment(LoginFragment())
+            MainActivity.loginPageLoaded = true
+            MainActivity.signupPageLoaded = false
         }
     }
+
     companion object {
         /**
          * Use this factory method to create a new instance of
@@ -62,17 +63,16 @@ class LoginFragment : Fragment() {
          *
          * @param param1 Parameter 1.
          * @param param2 Parameter 2.
-         * @return A new instance of fragment ProfileFragment.
+         * @return A new instance of fragment SignUpFragment.
          */
         // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            LoginFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+        @JvmStatic fun newInstance(param1: String, param2: String) =
+                SignUpFragment().apply {
+                    arguments = Bundle().apply {
+                        putString(ARG_PARAM1, param1)
+                        putString(ARG_PARAM2, param2)
+                    }
                 }
-            }
     }
 
     private fun loadFragment(fragment: Fragment) {
