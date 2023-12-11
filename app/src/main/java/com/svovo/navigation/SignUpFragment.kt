@@ -1,13 +1,13 @@
 package com.svovo.navigation
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -41,19 +41,35 @@ class SignUpFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         view.findViewById<Button>(R.id.signup_button).setOnClickListener {
-            if (view.findViewById<EditText>(R.id.password).text.toString()
-                == view.findViewById<EditText>(R.id.repeat_password).text.toString()
-                && view.findViewById<EditText>(R.id.password).text.toString().length > 5) {
-                MainActivity.loggedIn = true
-                loadFragment(ProfileFragment())
+            val email = view.findViewById<EditText>(R.id.email).text.toString().trim()
+            val username = view.findViewById<EditText>(R.id.username).text.toString().trim()
+            val password = view.findViewById<EditText>(R.id.password).text.toString()
+            val repeatPassword = view.findViewById<EditText>(R.id.repeat_password).text.toString()
+
+            if (password == repeatPassword && username.length > 5) {
+                LoginServer().register(email, username, password,
+                    {user: User ->
+                        if (user.authenticated){
+                            user.authenticateUser()
+                            loadFragment(ProfileFragment())
+                        }
+                        else failSignUp()
+                    },
+                    {
+                        failSignUp()
+                    })
             }
-            else Toast.makeText(activity, "Sign Up Failed", Toast.LENGTH_SHORT).show()
+            else failSignUp()
         }
         view.findViewById<Button>(R.id.login_button).setOnClickListener {
             loadFragment(LoginFragment())
             MainActivity.loginPageLoaded = true
             MainActivity.signupPageLoaded = false
         }
+    }
+
+    private fun failSignUp(){
+        Toast.makeText(activity, "Sign Up Failed", Toast.LENGTH_SHORT).show()
     }
 
     companion object {

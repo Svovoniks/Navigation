@@ -32,7 +32,8 @@ class RoutingServer {
         )
         val url = urlList.joinToString(separator = "/")
         Log.d("getting route", url)
-        val request = JsonObjectRequest(Request.Method.GET, url, null,
+        val request = JsonObjectRequest(
+            Request.Method.GET, url, null,
             {response -> onResponse(response)},
             {error -> onError(error)}
         )

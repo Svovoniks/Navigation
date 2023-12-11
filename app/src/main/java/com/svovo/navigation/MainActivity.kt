@@ -1,6 +1,7 @@
 package com.svovo.navigation
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
@@ -31,7 +32,6 @@ import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.gestures.RotationGestureOverlay
 
-
 class MainActivity : AppCompatActivity(), LocationListener {
 
     private lateinit var binding: ActivityMainBinding
@@ -44,6 +44,12 @@ class MainActivity : AppCompatActivity(), LocationListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        userPreferences = getSharedPreferences("user", Context.MODE_PRIVATE)
+
+        if (userPreferences != null && userPreferences!!.contains(USERNAME_PREF)) {
+            loggedIn = true
+        }
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -264,6 +270,10 @@ class MainActivity : AppCompatActivity(), LocationListener {
     }
 
     companion object {
+        val USERNAME_PREF = "username"
+        val EMAIL_PREF = "email"
+        val SESSION_PREF = "session"
+        var userPreferences: SharedPreferences? = null
         var loggedIn: Boolean = false
         var loginPageLoaded : Boolean = true
         var signupPageLoaded : Boolean = false

@@ -1,13 +1,13 @@
 package com.svovo.navigation
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -42,18 +42,31 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         view.findViewById<Button>(R.id.login_button).setOnClickListener {
-            if (view.findViewById<EditText>(R.id.username).text.toString() == "admin"
-                && view.findViewById<EditText>(R.id.password).text.toString() == "admin") {
-                MainActivity.loggedIn = true
-                loadFragment(ProfileFragment())
-            }
-            else Toast.makeText(activity, "Login Failed", Toast.LENGTH_SHORT).show()
+            val username = view.findViewById<EditText>(R.id.username).text.toString().trim()
+            val password = view.findViewById<EditText>(R.id.password).text.toString()
+
+            LoginServer().login(username, password,
+                {user: User ->
+                    if (user.authenticated){
+                        user.authenticateUser()
+                        loadFragment(ProfileFragment())
+                    }
+                    else failLogin()
+                },
+                {
+                    failLogin()
+                }
+            )
         }
         view.findViewById<Button>(R.id.signup_button).setOnClickListener {
             loadFragment(SignUpFragment())
             MainActivity.loginPageLoaded = false
             MainActivity.signupPageLoaded = true
         }
+    }
+
+    private fun failLogin(){
+        Toast.makeText(activity, "Login Failed", Toast.LENGTH_SHORT).show()
     }
     companion object {
         /**
