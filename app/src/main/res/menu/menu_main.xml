@@ -3,8 +3,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.svovo.navigation.MainActivity">
     <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
+        android:id="@+id/discover"
+        android:icon="@drawable/discover_selector"
+        android:title="Discover"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/mapFragment"
+        android:icon="@drawable/map_selector"
+        android:title="Map"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/profile"
+        android:icon="@drawable/profile_selector"
+        android:title="Profile"
+        app:showAsAction="never" />
+
 </menu>

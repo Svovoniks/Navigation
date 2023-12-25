@@ -4,14 +4,75 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".FirstFragment">
+    tools:context=".FirstFragment"
+    tools:ignore="MissingDefaultResource">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginTop="50dp"
+            android:layout_marginHorizontal="20dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:cardCornerRadius="15dp"
+            app:cardBackgroundColor="#1F2736"
+            app:tint="#E6DFD9"
+            app:elevation="0dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    app:elevation="0dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            app:elevation="0dp"
+                            android:id="@+id/search_bar_edit_text"
+                            android:layout_width="300dp"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="15dp"
+                            android:background="@android:color/transparent"
+                            android:hint="Search"
+                            android:maxWidth="200dp"
+                            android:singleLine="true"
+                            android:textColorHint="#E6DFD9"
+                            android:textColor="#E6DFD9"
+                            android:textSize="20sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <ImageView
+                            android:id="@+id/search_icon"
+                            app:elevation="0dp"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_margin="10dp"
+                            android:backgroundTint="@android:color/transparent"
+                            android:src="@drawable/discover_icon_inactive"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <ProgressBar
+                            android:id="@+id/progress_bar"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="10dp"
+                            android:visibility="invisible"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.cardview.widget.CardView>
 
         <org.osmdroid.views.MapView
             android:id="@+id/map"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="#151B26"
             tools:layout_editor_absoluteX="0dp"
-            tools:layout_editor_absoluteY="0dp"></org.osmdroid.views.MapView>
+            tools:layout_editor_absoluteY="0dp" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/zoom_out_fab"
@@ -20,9 +81,13 @@
             android:layout_margin="15dp"
             android:contentDescription="@string/fab_description"
             android:src="@drawable/baseline_remove_24"
+            app:elevation="0dp"
+            app:tint="#E6DFD9"
+            app:backgroundTint="#CC1F2736"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:maxImageSize="40dp"/>
 
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -31,8 +96,12 @@
             android:layout_height="wrap_content"
             android:layout_margin="15dp"
             android:src="@drawable/baseline_add_24"
+            app:elevation="0dp"
+            app:tint="#E6DFD9"
+            app:backgroundTint="#CC1F2736"
             app:layout_constraintBottom_toTopOf="@id/zoom_out_fab"
             app:layout_constraintEnd_toEndOf="parent"
+            app:maxImageSize="40dp"
             android:contentDescription="@string/fab_description" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -41,18 +110,39 @@
             android:layout_height="wrap_content"
             android:layout_margin="15dp"
             android:contentDescription="@string/fab_description"
-            android:src="@drawable/baseline_my_location_24"
+            android:src="@drawable/arrow_icon"
+            app:elevation="0dp"
+            app:backgroundTint="#CC1F2736"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/zoom_out_fab" />
+            app:layout_constraintTop_toBottomOf="@+id/zoom_out_fab"
+            app:maxImageSize="35dp"
+            app:tint="#E6DFD9" />
+
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/add_fab"
+            android:visibility="invisible"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="170dp"
+            android:contentDescription="@string/fab_description"
+            android:text="Save trail"
+            android:textColor="#E6DFD9"
+            app:backgroundTint="#1F2736"
+            app:elevation="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/routing_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="90dp"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:visibility="invisible">
+            app:layout_constraintStart_toStartOf="parent">
 
                 <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
                     android:id="@+id/to_fab"
@@ -62,6 +152,9 @@
                     android:layout_margin="15dp"
                     android:contentDescription="@string/fab_description"
                     android:text="To here"
+                    android:textColor="#E6DFD9"
+                    app:elevation="0dp"
+                    app:backgroundTint="#1F2736"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
@@ -76,11 +169,15 @@
                     android:layout_margin="15dp"
                     android:contentDescription="@string/fab_description"
                     android:text="From here"
+                    android:textColor="#E6DFD9"
+                    app:elevation="0dp"
+                    app:backgroundTint="#1F2736"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/to_fab"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

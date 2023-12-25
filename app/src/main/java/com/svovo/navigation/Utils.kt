@@ -5,18 +5,30 @@ import android.app.Activity
 import android.content.pm.PackageManager
 import android.location.Location
 import android.util.Log
+import android.view.View
+import android.widget.Button
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcher
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
+import com.android.volley.RequestQueue
+import com.android.volley.Response
+import com.android.volley.toolbox.BasicNetwork
+import com.android.volley.toolbox.DiskBasedCache
+import com.android.volley.toolbox.HurlStack
+import com.android.volley.toolbox.StringRequest
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+import com.google.gson.JsonObject
+import com.google.gson.JsonParser
 import org.json.JSONObject
 import org.osmdroid.events.MapEventsReceiver
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polyline
+import java.io.File
+import java.net.URLEncoder
 
 class Utils {
     val LOCATION_RQ = 100
@@ -44,21 +56,28 @@ class Utils {
         map.controller.animateTo(GeoPoint(location))
     }
 
+    fun centerMap(location: GeoPoint, map: MapView){
+        map.controller.animateTo(location)
+    }
+
     fun setPositionMarker(marker: Marker, location: Location){
         marker.position = GeoPoint(location)
     }
 
 }
 
-class PathManager(map: MapView, onBackPressedDispatcher: OnBackPressedDispatcher) : OnBackPressedCallback(true) {
+class PathManager(map: MapView, onBackPressedDispatcher: OnBackPressedDispatcher, addButton: Button) : OnBackPressedCallback(true) {
     private var pathList: ArrayList<Polyline>
     private val map: MapView
     private val startMarker: Marker
     private val destMarker: Marker
     private val onBackPressedDispatcher: OnBackPressedDispatcher
+    private val addButton: Button
     init{
         this.map = map
         this.onBackPressedDispatcher = onBackPressedDispatcher
+        this.addButton = addButton
+
         startMarker = Marker(map)
         destMarker = Marker(map)
         pathList = ArrayList()
@@ -154,12 +173,43 @@ class PathManager(map: MapView, onBackPressedDispatcher: OnBackPressedDispatcher
         setMarker(destMarker, destMarker.position, false)
         map.invalidate()
         isEnabled = true
+        if (MainActivity.loggedIn) addButton.visibility = View.VISIBLE
+        onBackPressedDispatcher.addCallback(this)
+    }
+
+    fun getPointList(): ArrayList<GeoPoint>? {
+        if (pathList.isEmpty()) {
+            return null
+        }
+
+        return ArrayList(pathList[0].actualPoints)
+
+    }
+
+    fun buildFromTrail(trail: Trail){
+        clearPaths()
+        clearMarkers()
+        val polyline = Polyline(map)
+        for (i in trail.points){
+            polyline.addPoint(i)
+        }
+        setMarker(startMarker, trail.points.first())
+        setMarker(destMarker, trail.points.last())
+
+        pathList.add(polyline)
+        map.overlays.add(polyline)
+
+
+        map.invalidate()
+        isEnabled = true
+        addButton.visibility = View.VISIBLE
         onBackPressedDispatcher.addCallback(this)
     }
 
     override fun handleOnBackPressed() {
         clearPaths()
         clearMarkers()
+        addButton.visibility = View.GONE
         remove()
     }
 }
@@ -230,3 +280,101 @@ class MapEventsReceiverImpl(map: MapView,
         removeSelectMarker()
     }
 }
+
+class Search (context: Activity){
+    private val markerList: ArrayList<Marker> = ArrayList()
+    private val searchObjectList: ArrayList<SearchObject> = ArrayList()
+    private val context: Activity
+
+    init {
+        this.context = context
+    }
+
+    fun executeForAllFound(action: (ArrayList<SearchObject>) -> Unit){
+        action(searchObjectList)
+    }
+
+
+    fun drawAll(map: MapView){
+        for (i in searchObjectList){
+            val mk = Marker(map)
+            mk.position = i.point
+            map.overlays.add(mk)
+            markerList.add(mk)
+        }
+        map.invalidate()
+    }
+
+    fun centerOnTheClosest(map: MapView, currentLocation: GeoPoint){
+        if (markerList.isEmpty()){
+            return
+        }
+        markerList.sortBy { it.position.distanceToAsDouble(currentLocation) }
+        Utils().centerMap(markerList.first().position, map)
+    }
+
+    fun removeAllMarkers(map: MapView){
+        for (i in markerList){
+            map.overlays.remove(i)
+        }
+        markerList.clear()
+    }
+
+    fun clearSearchList(){
+        searchObjectList.clear()
+    }
+
+    fun find(name: String, map: MapView, action: (ArrayList<SearchObject>) -> Unit, errorAction: () -> Unit) {
+        val cache = DiskBasedCache(File("cache"), 1024 * 1024)
+        val network = BasicNetwork(HurlStack())
+        val requestQueue = RequestQueue(cache, network).apply {
+            start()
+        }
+
+        var url = "https://nominatim.openstreetmap.org/search.php?format=json&accept-language=en&addressdetails=1&limit=50&q="
+
+        url += URLEncoder.encode(name, "UTF-8")
+
+        val point1 = map.projection.northEast
+        val point2 = map.projection.southWest
+
+        url += "&viewbox=" + point1.longitude + "," + point1.latitude+ "," + point2.longitude + "," + point2.latitude
+        class CustomRequest : StringRequest(
+            Method.GET, url,
+            Response.Listener { response ->
+
+                val parsed = JsonParser.parseString(response)
+                if (!parsed.isJsonArray){
+                    Toast.makeText(context, "doesn't exist", Toast.LENGTH_LONG).show()
+                    return@Listener
+                }
+
+                for (i in parsed.asJsonArray){
+                    val k = i.asJsonObject
+                    searchObjectList.add(SearchObject(GeoPoint(k["lat"].asDouble, k["lon"].asDouble), k))
+                }
+                action(searchObjectList)
+            },
+            Response.ErrorListener { error ->
+                errorAction()
+                Toast.makeText(context, error.toString(), Toast.LENGTH_LONG).show()
+            }) {
+            override fun getHeaders(): MutableMap<String, String> {
+                val map = HashMap<String, String>()
+                map["User-Agent"] = "Mozilla/5.0"
+                return map
+            }
+        }
+        requestQueue.add(CustomRequest())
+    }
+}
+
+class SearchObject(point: GeoPoint, fullData: JsonObject){
+    val point: GeoPoint
+    val fullData: JsonObject
+    init {
+        this.point = point
+        this.fullData = fullData
+    }
+}
+

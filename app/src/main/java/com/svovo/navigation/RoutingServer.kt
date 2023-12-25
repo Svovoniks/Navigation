@@ -14,7 +14,7 @@ import java.io.File
 
 class RoutingServer {
     private val rootURL: String = "https://gradually-quality-mole.ngrok-free.app"
-    private val routingURL: String = "get-route/{startLat}/{startLon}/{destLat}/{destLon}?start_lat=%s&start_lon=%s&dest_lat=%s&dest_lon=%s"
+    private val routingURL: String = "get-route/?start_lat=%s&start_lon=%s&dest_lat=%s&dest_lon=%s"
     private val requestQueue: RequestQueue
 
     init {
@@ -32,7 +32,8 @@ class RoutingServer {
         )
         val url = urlList.joinToString(separator = "/")
         Log.d("getting route", url)
-        val request = JsonObjectRequest(Request.Method.GET, url, null,
+        val request = JsonObjectRequest(
+            Request.Method.GET, url, null,
             {response -> onResponse(response)},
             {error -> onError(error)}
         )
