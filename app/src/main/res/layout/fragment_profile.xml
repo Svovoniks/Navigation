@@ -53,7 +53,7 @@
         android:layout_marginTop="15dp"
         android:text="User"
         android:fontFamily="@font/signika_bold"
-        android:textColor="#E6DFD9"
+        android:textColor="#bfb3a9"
         android:textSize="34sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.37"

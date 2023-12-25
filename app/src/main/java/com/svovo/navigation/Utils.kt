@@ -5,6 +5,8 @@ import android.app.Activity
 import android.content.pm.PackageManager
 import android.location.Location
 import android.util.Log
+import android.view.View
+import android.widget.Button
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcher
@@ -64,15 +66,18 @@ class Utils {
 
 }
 
-class PathManager(map: MapView, onBackPressedDispatcher: OnBackPressedDispatcher) : OnBackPressedCallback(true) {
+class PathManager(map: MapView, onBackPressedDispatcher: OnBackPressedDispatcher, addButton: Button) : OnBackPressedCallback(true) {
     private var pathList: ArrayList<Polyline>
     private val map: MapView
     private val startMarker: Marker
     private val destMarker: Marker
     private val onBackPressedDispatcher: OnBackPressedDispatcher
+    private val addButton: Button
     init{
         this.map = map
         this.onBackPressedDispatcher = onBackPressedDispatcher
+        this.addButton = addButton
+
         startMarker = Marker(map)
         destMarker = Marker(map)
         pathList = ArrayList()
@@ -168,12 +173,43 @@ class PathManager(map: MapView, onBackPressedDispatcher: OnBackPressedDispatcher
         setMarker(destMarker, destMarker.position, false)
         map.invalidate()
         isEnabled = true
+        if (MainActivity.loggedIn) addButton.visibility = View.VISIBLE
+        onBackPressedDispatcher.addCallback(this)
+    }
+
+    fun getPointList(): ArrayList<GeoPoint>? {
+        if (pathList.isEmpty()) {
+            return null
+        }
+
+        return ArrayList(pathList[0].actualPoints)
+
+    }
+
+    fun buildFromTrail(trail: Trail){
+        clearPaths()
+        clearMarkers()
+        val polyline = Polyline(map)
+        for (i in trail.points){
+            polyline.addPoint(i)
+        }
+        setMarker(startMarker, trail.points.first())
+        setMarker(destMarker, trail.points.last())
+
+        pathList.add(polyline)
+        map.overlays.add(polyline)
+
+
+        map.invalidate()
+        isEnabled = true
+        addButton.visibility = View.VISIBLE
         onBackPressedDispatcher.addCallback(this)
     }
 
     override fun handleOnBackPressed() {
         clearPaths()
         clearMarkers()
+        addButton.visibility = View.GONE
         remove()
     }
 }

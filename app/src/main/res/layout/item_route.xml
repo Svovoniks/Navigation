@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardBackgroundColor="#1F2736"
+    app:cardCornerRadius="15dp"
+    app:elevation="10dp"
+    app:cardUseCompatPadding="true">
+
+    <TextView
+        android:id="@+id/route_name_textview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="name"
+        android:textColor="#E6DFD9"
+        android:layout_margin="20dp"
+        android:textSize="20sp"/>
+
+</androidx.cardview.widget.CardView>

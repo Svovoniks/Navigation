@@ -13,13 +13,17 @@ import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
+import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import com.svovo.navigation.databinding.ActivityMainBinding
@@ -47,8 +51,15 @@ class MainActivity : AppCompatActivity(), LocationListener {
 
         userPreferences = getSharedPreferences("user", Context.MODE_PRIVATE)
 
+
         if (userPreferences != null && userPreferences!!.contains(USERNAME_PREF)) {
             loggedIn = true
+            user = User(true,
+                userPreferences!!.getString(USERNAME_PREF, "").toString(),
+                userPreferences!!.getString(EMAIL_PREF, "").toString(),
+                userPreferences!!.getString(SESSION_PREF, "").toString()
+            )
+            user!!.fetchTrails {}
         }
 
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -69,6 +80,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
         findViewById<FloatingActionButton>(R.id.zoom_in_fab).setOnClickListener {
             if (map.canZoomIn()) map.controller.zoomTo(map.zoomLevelDouble + 2)
         }
+
 
         val search = Search(this)
 
@@ -114,7 +126,35 @@ class MainActivity : AppCompatActivity(), LocationListener {
 
         map.overlays.add(locationMarker)
 
-        val pathManager = PathManager(map, onBackPressedDispatcher)
+        val addTrailButton = findViewById<Button>(R.id.add_fab)
+
+        val pathManager = PathManager(map, onBackPressedDispatcher, addTrailButton)
+        MainActivity.pathManager = pathManager
+
+        addTrailButton.setOnClickListener {
+            val view = layoutInflater.inflate(R.layout.name_dialog,null)
+            val cancelButton = view.findViewById<Button>(R.id.cancel_name)
+            val okButton = view.findViewById<Button>(R.id.ok_name)
+            val editText = view.findViewById<EditText>(R.id.dialog_name_edit_text)
+
+            val builder = AlertDialog.Builder(this, R.style.AlertDialog).create()
+
+            builder.setView(view)
+            cancelButton.setOnClickListener { builder.dismiss() }
+
+            okButton.setOnClickListener ok@ {
+                val points = pathManager.getPointList()
+                if (points == null) {
+                    builder.dismiss()
+                    return@ok
+                }
+                user?.addTrail(Trail(0, editText.text.toString(), points))
+                builder.dismiss()
+            }
+
+            builder.show()
+
+        }
 
         val eventsReceiver = MapEventsReceiverImpl(map,
             pathManager,
@@ -137,7 +177,9 @@ class MainActivity : AppCompatActivity(), LocationListener {
 
         binding.bottomNav.itemIconTintList = null
 
-        var mapFlag = true
+        mapFlag = true
+
+        bottomNav = binding.bottomNav
 
         binding.bottomNav.setOnItemSelectedListener {
             when(it.itemId){
@@ -273,6 +315,10 @@ class MainActivity : AppCompatActivity(), LocationListener {
         val USERNAME_PREF = "username"
         val EMAIL_PREF = "email"
         val SESSION_PREF = "session"
+        var mapFlag = true
+        var user: User? = null
+        var pathManager: PathManager? = null
+        var bottomNav: BottomNavigationView? = null
         var userPreferences: SharedPreferences? = null
         var loggedIn: Boolean = false
         var loginPageLoaded : Boolean = true
