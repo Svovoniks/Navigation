@@ -7,61 +7,14 @@
     android:background="@drawable/discover_bg"
     tools:context=".DiscoverFragment">
 
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="50dp"
-        app:cardBackgroundColor="#1F2736"
-        app:cardCornerRadius="15dp"
-        app:elevation="0dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tint="#E6DFD9">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:elevation="0dp">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/search_bar_edit_text"
-                android:layout_width="300dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="15dp"
-                android:background="@android:color/transparent"
-                android:hint="Search"
-                android:maxWidth="200dp"
-                android:singleLine="true"
-                android:textColor="#E6DFD9"
-                android:textColorHint="#E6DFD9"
-                android:textSize="20sp"
-                app:elevation="0dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <ImageView
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_margin="10dp"
-                android:backgroundTint="@android:color/transparent"
-                android:src="@drawable/discover_icon_inactive"
-                app:elevation="0dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </androidx.cardview.widget.CardView>
-
     <TextView
         android:id="@+id/popularRoutesTextView"
         android:layout_width="201dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="120dp"
+        android:layout_marginTop="80dp"
         android:fontFamily="@font/signika_bold"
-        android:text="My routes"
+        android:text="My trails"
         android:textColor="#E6DFD9"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -76,7 +29,7 @@
 
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="170dp"
+        android:layout_marginTop="130dp"
         android:layout_marginBottom="100dp"
         android:orientation="horizontal" />
 
@@ -86,7 +39,7 @@
         android:layout_height="match_parent"
         android:fontFamily="@font/signika_bold"
         android:gravity="center"
-        android:text="Log in to see your routes"
+        android:text="Log in to see your trails"
         android:textAlignment="center"
         android:textColor="#E6DFD9"
         android:textSize="24sp"
